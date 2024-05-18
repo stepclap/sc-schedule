@@ -1,0 +1,148 @@
+
+
+
+
+|             | MO                                              | DI                                                  | MI                                                     | DO                                          | FR                           |
+| ----------- | ----------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------| --------------------------------------------| -----------------------------|  
+| 14:00-15:00 |                                                 |                                                     | Ballett für Kinder ab 5 Jahren (Nadine)                |                                             |                              |                   
+| 15:00-16:00 |                                                 |                                                     | Ballett für Kinder ab 5 Jahren (Nadine)                |                                             |                              |                   
+| 16:00-17:00 |                                                 |                                                     | Hip Hop für Kinder (Mina)                              |                                             |                              |            
+| 16:30-17:30 | Kreativer Kindertanz (Mina) – WARTELISTE        |                                                     |                                                        |                                             |                              | 
+| 17:00-18:00 |                                                 |                                                     | Hip Hop für Kinder und Jugendliche ab 10 Jahren (Mina) |                                             |                              |
+| 17:30-18:30 | Contemporary für Kinder (Mina) – WARTELISTE     |                                                     |                                                        |                                             |                              | 
+| 17:30-18:45 |                                                 | Contemporary für Jugendliche (Mina)  Anfänger       |                                                        | Hip Hop für Jugendliche ab 12 Jahren (Mina) |                              |                 
+| 18:00-19:45 | Modern Ballett (Ramona) - Anfänger              |                                                     |                                                        |                                             |                              | 
+| 18:45-20:00 |                                                 | Contemporary für Erwachsene (Mina)  Mittelstufe     |                                                        |                                             |                              |                 
+| 19:00-20:15 |                                                 |                                                     |  Voguing für Anfänger (Mina)                           | Voguing  (Mina) – Fortgeschritten           |                              |           
+| 19:45-21:00 | Urban Contemporary (Mina) Fortgeschritten       |                                                     |                                                        |                                             |                              | 
+| 20:00-21:15 |                                                 |                                                     |                                                        |                                             | Hip Hop (Natalie) – Anfänger |
+| 20:15-21:30 |                                                 | Hip Hop für Erwachsene  (Mina) Fortgeschritten      | Salsa Ladystyle (Gülenay)                              | Salsa (Gülenay&Michele)                     |                              |
+
+
+
+
+
+<script lang="ts">
+  //check if browser(import from svelte) onmount, then select 'table' element and aplly 'table' class
+  import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
+  import { selectedClass } from '$lib/stores';
+	//import TrialBooker from '$lib/components/organisms/TrialBooker.svelte';
+
+ onMount(() => {
+    if (!browser) return;
+
+    const table = document.querySelector('table');
+    table.classList.add('table', 'text-center', 'variant-soft', 'sleekscrollbar');
+
+    const tbody = document.querySelector('tbody');
+    tbody.classList.add('sleekscrollbar');
+
+    const thead = document.querySelector('thead');
+    thead.classList.add('bg-variant-soft', 'text-center');
+
+    const days = document.querySelectorAll('th');
+    days.forEach((th) => {
+      th.classList.add('text-center', 'variant-soft-primary');
+    });
+
+    let selectedEntry = null; // Track the currently selected entry
+
+    
+
+    const entries = document.querySelectorAll('td');
+    entries.forEach((entry) => {
+      entry.addEventListener('mouseover', function(event) {
+        const target = event.target;
+        const parentRow = target.parentNode;
+        const cellIndex = Array.from(parentRow.children).indexOf(target);
+        if (cellIndex > 0 && target.textContent !== '') {
+          target.classList.add('card');
+        }
+      });
+
+      entry.addEventListener('mouseout', function(event) {
+        const target = event.target;
+        if (target.textContent !== '') {
+          target.classList.remove('card');
+        }
+      });
+
+      entry.addEventListener('click', function(event) {
+        const target = event.target;
+        const parentRow = target.parentNode;
+        const cellIndex = Array.from(parentRow.children).indexOf(target);
+        
+        if (cellIndex > 0) {
+          if (target.textContent === '') {
+            // Deselect if clicked on an empty cell
+            if (selectedEntry) {
+              selectedEntry.classList.remove('variant-soft-primary');
+              selectedClass.set({day: '', time: '', class: ''});
+              selectedEntry = null;
+            }
+          } else if (selectedEntry === target) {
+            // Deselect if the same entry is clicked again
+            target.classList.remove('variant-soft-primary');
+            selectedClass.set({day: '', time: '', class: ''});
+            selectedEntry = null;
+          } else {
+            // Deselect previous entry if there is one
+            if (selectedEntry) {
+              selectedEntry.classList.remove('variant-soft-primary');
+            }
+            // Select new entry and store reference
+            target.classList.add('variant-soft-primary');
+            selectedEntry = target;
+
+            // Lookup the time and day
+            const timeCell = parentRow.querySelector('td');
+            const dayCell = document.querySelector(`thead tr th:nth-child(${cellIndex + 1})`);
+            selectedClass.set({day: dayCell.textContent, time: timeCell.textContent, class: target.textContent});
+            console.log(timeCell.textContent, dayCell.textContent);
+          }
+        }
+      });
+    });
+
+  });
+</script>
+
+
+<style>
+
+    td {
+      border-right: 1px solid #d7cce7;
+      white-space: normal; /* Ensures that the text goes to the next line */
+      word-wrap: break-word;
+
+      @media (max-width: 768px) {
+        font-size: 0.7rem;
+        font-weight: 100;
+      }
+    }
+
+    td:last-child {
+      border-right: none;
+    }
+
+ 
+
+  thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* This makes sure the columns stay aligned */
+  }
+
+  tbody {
+    display: block;
+    max-height: 70vh; /* Adjust this value as needed */
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  thead {
+    width: 100%; /* Adjust this value to match the scrollbar width */
+  }
+
+</style>
